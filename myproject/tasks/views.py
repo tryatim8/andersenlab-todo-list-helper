@@ -7,4 +7,4 @@ from rest_framework.request import Request
 def hello_apiview(request: Request) -> Response:
     """Функция приветствия с описанием приложения."""
 
-    return Response({'message': 'Hello ToDo API customer'})
+    return Response({'message': 'Hello ToDo API tasks app customer!'})
