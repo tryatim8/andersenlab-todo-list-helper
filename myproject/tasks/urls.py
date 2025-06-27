@@ -1,11 +1,13 @@
-from django.urls import path
-from .views import hello_apiview
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+from .views import TasksListApiView, TasksApiViewSet
+
+router = DefaultRouter()
+router.register('', TasksApiViewSet, basename='task')
 
 app_name = 'tasks'
 urlpatterns = [
-    path(
-        'hello/',
-        hello_apiview,
-        name='hello',
-    )
+    path('all/', TasksListApiView.as_view(), name='all_tasks'),
+    path('', include(router.urls)),
 ]
