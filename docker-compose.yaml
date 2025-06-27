@@ -1,0 +1,47 @@
+services:
+#  django_app:
+#    build:
+#      dockerfile: ./myproject/Dockerfile
+#      context: .
+#    working_dir: /app/myproject
+#    command: gunicorn myproject.wsgi:application -b 0.0.0.0:8000
+#    volumes:
+#      - .:/app
+#    ports:
+#      - "8000:8000"
+#    depends_on:
+#      - db_postgres
+#      - adminer
+#    env_file:
+#      - .env
+
+  db_postgres:
+    image:
+      postgres:16
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=${POSTGRES_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PG_OPTIONS="--log_destination=stderr --logging_collector=on --log_directory=/var/lib/postgresql/logs/report.log"
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -d ${POSTGRES_NAME} -U ${POSTGRES_USER}']
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  adminer:
+    image: adminer
+    ports:
+      - '8080:8080'
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
