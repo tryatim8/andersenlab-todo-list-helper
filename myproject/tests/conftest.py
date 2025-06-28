@@ -1,9 +1,15 @@
-import pytest
+import random
+
 from django.contrib.auth import get_user_model
+from django.db.transaction import atomic
+from faker import Faker
 from rest_framework.test import APIClient
+from tasks.models import Task
+import pytest
 
 
 User = get_user_model()
+fake = Faker()
 
 
 @pytest.fixture
@@ -45,3 +51,17 @@ def access_token_refreshed(api_client, refresh_token, user):
 def auth_client_refreshed(api_client, access_token_refreshed, user):
     api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token_refreshed}')
     return api_client
+
+@pytest.fixture
+def tasks_list(user):
+    with atomic():
+        tasks = [
+            Task.objects.create(
+                user=user,
+                title=fake.sentence(nb_words=4),
+                description=fake.paragraph(nb_sentences=3),
+                status=random.choice(['new', 'in_progress', 'completed']),
+            )
+            for _ in range(10)
+        ]
+    return tasks
