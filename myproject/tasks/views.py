@@ -19,7 +19,7 @@ class TasksListApiView(ListAPIView):
     permission_classes = [IsStaff]
 
     def get_queryset(self):
-        return Task.objects.select_related('user')
+        return Task.objects.select_related('user').order_by('pk')
 
 
 class TasksApiViewSet(ModelViewSet):
@@ -30,7 +30,8 @@ class TasksApiViewSet(ModelViewSet):
     filterset_fields = ['status']
 
     def get_queryset(self):
-        return Task.objects.filter(user=self.request.user).select_related('user')
+        return Task.objects.filter(user=self.request.user) \
+            .select_related('user').order_by('-pk')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
