@@ -1,4 +1,3 @@
-from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.generics import ListAPIView
@@ -23,6 +22,11 @@ class TasksListApiView(ListAPIView):
         return Task.objects.select_related('user').order_by('pk')
 
 
+@extend_schema_view(
+    retrieve=extend_schema(parameters=[
+        OpenApiParameter(name='id', type=int, location=OpenApiParameter.PATH)
+    ])
+)
 class TasksApiViewSet(ModelViewSet):
 
     serializer_class = TaskSerializer
@@ -30,6 +34,8 @@ class TasksApiViewSet(ModelViewSet):
     filterset_fields = ['status']
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Task.objects.none()  # безопасный фейковый queryset
         return Task.objects.filter(user=self.request.user) \
             .select_related('user').order_by('-pk')
 
