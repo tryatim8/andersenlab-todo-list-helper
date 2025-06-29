@@ -1,12 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from .serializers import TaskSerializer
 
+from .serializers import TaskSerializer
 from .models import Task
 from .permissions import IsOwner, IsStaff
 
@@ -16,6 +17,7 @@ class TasksListApiView(ListAPIView):
 
     serializer_class = TaskSerializer
     permission_classes = [IsStaff]
+    filterset_fields = ['status']
 
     def get_queryset(self):
         return Task.objects.select_related('user').order_by('pk')
@@ -25,12 +27,25 @@ class TasksApiViewSet(ModelViewSet):
 
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated, IsOwner]
-    filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status']
 
     def get_queryset(self):
         return Task.objects.filter(user=self.request.user) \
             .select_related('user').order_by('-pk')
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='status',
+                description='- `new` - New task\n'
+                            '- `in_progress` - In progress\n'
+                            '- `completed` - Completed',
+                enum=['new', 'in_progress', 'completed'],
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
