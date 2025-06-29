@@ -1,11 +1,14 @@
 import random
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.transaction import atomic
 from faker import Faker
 from rest_framework.test import APIClient
-from tasks.models import Task
 import pytest
+
+from tasks.models import Task
+from tasks.serializers import TaskSerializer
 
 
 User = get_user_model()
@@ -62,6 +65,14 @@ def tasks_list(user):
                 description=fake.paragraph(nb_sentences=3),
                 status=random.choice(['new', 'in_progress', 'completed']),
             )
-            for _ in range(10)
+            for _ in range(15)
         ]
-    return tasks
+    return list(sorted(tasks, key=lambda t: -t.pk))
+
+@pytest.fixture
+def tasks_serialized(tasks_list):
+    return [TaskSerializer(task).data for task in tasks_list]
+
+@pytest.fixture
+def page_size():
+    return settings.REST_FRAMEWORK.get('PAGE_SIZE', 10)
