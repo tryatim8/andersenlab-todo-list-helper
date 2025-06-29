@@ -19,7 +19,7 @@ class TasksListApiView(ListAPIView):
     filterset_fields = ['status']
 
     def get_queryset(self):
-        return Task.objects.select_related('user').order_by('pk')
+        return Task.objects.select_related('user').order_by('-pk')
 
 
 @extend_schema_view(

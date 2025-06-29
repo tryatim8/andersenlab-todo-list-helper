@@ -141,3 +141,24 @@ def test_task_mark_completed_by_id_failed(auth_client, tasks_serialized, task_pk
     response = auth_client.post(f'/api/tasks/{task_pk}/mark_completed/')
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.data['detail'] == 'No Task matches the given query.'
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('page_num', [1, 2])
+def test_all_tasks_list_with_pagination_via_superuser_client_successful(
+        superuser_client, tasks_serialized, page_size, page_num
+    ):
+    response = superuser_client.get('/api/tasks/all/', query_params={'page': page_num})
+    assert response.status_code == status.HTTP_200_OK
+    assert list(response.data.keys()) == ['count', 'next', 'previous', 'results']
+    assert response.data['count'] == len(tasks_serialized)
+    start = (page_num - 1) * page_size
+    assert response.data['results'] == tasks_serialized[start:start + page_size]
+
+
+@pytest.mark.django_db
+def test_all_tasks_list_from_user_client_failed(auth_client, tasks_serialized):
+    response = auth_client.get('/api/tasks/all/')
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert 'detail' in response.data
+    assert response.data['detail'] == 'You do not have permission to perform this action.'

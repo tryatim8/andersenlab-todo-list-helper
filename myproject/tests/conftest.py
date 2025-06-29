@@ -76,3 +76,15 @@ def tasks_serialized(tasks_list):
 @pytest.fixture
 def page_size():
     return settings.REST_FRAMEWORK.get('PAGE_SIZE', 10)
+
+@pytest.fixture
+def superuser(db):
+    return User.objects.create_superuser(
+        username='admin',
+        email='admin@example.com',
+        password='adminpass123',
+    )
+@pytest.fixture
+def superuser_client(superuser, api_client):
+    api_client.force_authenticate(user=superuser)
+    return api_client
