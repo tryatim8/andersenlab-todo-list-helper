@@ -1,11 +1,11 @@
-from typing import Optional, Any
+from typing import Any, Optional
 
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import QuerySet
 from drf_spectacular.utils import (
-    extend_schema_view,
-    extend_schema,
     OpenApiParameter,
+    extend_schema,
+    extend_schema_view,
 )
 from rest_framework import status
 from rest_framework.decorators import action
@@ -16,9 +16,9 @@ from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 from rest_framework.viewsets import ModelViewSet
 
-from .serializers import TaskSerializer
 from .models import Task
 from .permissions import IsOwner, IsStaff
+from .serializers import TaskSerializer
 
 
 class TasksListApiView(ListAPIView[Task]):

@@ -1,17 +1,13 @@
 import random
-from typing import Any, List, TYPE_CHECKING
+from typing import Any, List
 
 import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.utils.serializer_helpers import ReturnDict
-
 from tasks.models import Task
 from tasks.serializers import TaskSerializer
-
-
-if TYPE_CHECKING:
-    from users.models import User as UserType
+from users.models import User as UserType
 
 
 @pytest.mark.django_db

@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
+
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
 from .models import Task
-
 
 if TYPE_CHECKING:
     ModelAdminClass = ModelAdmin[Task]

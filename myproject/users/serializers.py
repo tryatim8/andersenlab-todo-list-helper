@@ -1,14 +1,12 @@
-from typing import TYPE_CHECKING, Dict, Any
+from typing import Any, Dict
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
+from .models import User as UserType
 
 User = get_user_model()
-
-if TYPE_CHECKING:
-    from .models import User as UserType
 
 
 class UserSerializer(serializers.ModelSerializer[UserType]):

@@ -1,23 +1,19 @@
 import random
-from typing import Optional, List, Dict, Any, TYPE_CHECKING
+from typing import Any, Dict, List, Optional
 
+import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.transaction import atomic
 from faker import Faker
 from rest_framework.test import APIClient
-import pytest
 from rest_framework.utils.serializer_helpers import ReturnDict
-
 from tasks.models import Task
 from tasks.serializers import TaskSerializer
-
+from users.models import User as UserType
 
 User = get_user_model()
 fake = Faker()
-
-if TYPE_CHECKING:
-    from users.models import User as UserType
 
 
 @pytest.fixture
