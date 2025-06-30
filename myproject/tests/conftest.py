@@ -19,6 +19,7 @@ fake = Faker()
 def api_client():
     return APIClient()
 
+
 @pytest.fixture
 def user(db):
     return User.objects.create_user(
@@ -26,37 +27,48 @@ def user(db):
         password='testpass123',
     )
 
+
 @pytest.fixture
 def user_credentials(user):
     return {'username': 'testuser', 'password': 'testpass123'}
 
+
 @pytest.fixture
 def access_token(api_client, user_credentials, user):
+    """Returns JWT access token."""
     response = api_client.post('/api/token/', data=user_credentials)
     return response.data['access']
 
+
 @pytest.fixture
 def refresh_token(api_client, user_credentials, user):
+    """Returns JWT refresh token."""
     response = api_client.post('/api/token/', data=user_credentials)
     return response.data['refresh']
+
 
 @pytest.fixture
 def auth_client(api_client, access_token, user):
     api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
     return api_client
 
+
 @pytest.fixture
 def access_token_refreshed(api_client, refresh_token, user):
+    """Returns refreshed access token."""
     response = api_client.post('/api/token/refresh/', data={'refresh': refresh_token})
     return response.data['access']
+
 
 @pytest.fixture
 def auth_client_refreshed(api_client, access_token_refreshed, user):
     api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token_refreshed}')
     return api_client
 
+
 @pytest.fixture
 def tasks_list(user):
+    """Creates and returns a list of tasks."""
     with atomic():
         tasks = [
             Task.objects.create(
@@ -69,13 +81,16 @@ def tasks_list(user):
         ]
     return list(sorted(tasks, key=lambda t: -t.pk))
 
+
 @pytest.fixture
 def tasks_serialized(tasks_list):
     return [TaskSerializer(task).data for task in tasks_list]
 
+
 @pytest.fixture
 def page_size():
     return settings.REST_FRAMEWORK.get('PAGE_SIZE', 10)
+
 
 @pytest.fixture
 def superuser(db):
@@ -84,6 +99,8 @@ def superuser(db):
         email='admin@example.com',
         password='adminpass123',
     )
+
+
 @pytest.fixture
 def superuser_client(superuser, api_client):
     api_client.force_authenticate(user=superuser)

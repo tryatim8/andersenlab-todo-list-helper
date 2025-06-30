@@ -6,7 +6,7 @@ User = get_user_model()
 
 
 class Task(models.Model):
-    """Модель задачи."""
+    """Task model for the database."""
 
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='tasks',

@@ -12,7 +12,7 @@ from .permissions import IsOwner, IsStaff
 
 
 class TasksListApiView(ListAPIView):
-    """Получение списка задач всех пользователей."""
+    """Retrieve a list of all users' tasks."""
 
     serializer_class = TaskSerializer
     permission_classes = [IsStaff]
@@ -28,6 +28,12 @@ class TasksListApiView(ListAPIView):
     ])
 )
 class TasksApiViewSet(ModelViewSet):
+    """
+    A ModelViewSet for managing task objects belonging to the authenticated user.
+
+    Provides actions to list, retrieve, create, update, delete tasks,
+    and mark them as completed. Access is restricted to the task owner.
+    """
 
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated, IsOwner]
@@ -35,7 +41,7 @@ class TasksApiViewSet(ModelViewSet):
 
     def get_queryset(self):
         if getattr(self, 'swagger_fake_view', False):
-            return Task.objects.none()  # безопасный фейковый queryset
+            return Task.objects.none()  # safe fake queryset
         return Task.objects.filter(user=self.request.user) \
             .select_related('user').order_by('-pk')
 
@@ -68,7 +74,7 @@ class TasksApiViewSet(ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def mark_completed(self, request, pk=None):
-        """Отметить задачу как выполненную."""
+        """Mark the task as completed."""
 
         task = self.get_object()
         if task.user != request.user:

@@ -5,7 +5,7 @@ from .models import Task
 
 @admin.register(Task)
 class TaskModelAdmin(admin.ModelAdmin):
-    """Модель отображения задач в админке."""
+    """Task model display for the admin panel."""
 
     list_display = ['pk', 'title', 'user', 'status', 'description_short']
     list_display_links = ['pk', 'title', 'status']
