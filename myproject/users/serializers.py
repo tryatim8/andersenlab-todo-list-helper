@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING, Dict, Any
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
@@ -5,8 +7,11 @@ from rest_framework import serializers
 
 User = get_user_model()
 
+if TYPE_CHECKING:
+    from .models import User as UserType
 
-class UserSerializer(serializers.ModelSerializer):
+
+class UserSerializer(serializers.ModelSerializer[UserType]):
     """Serializer for the User model."""
 
     password = serializers.CharField(
@@ -17,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['pk', 'username', 'first_name', 'last_name', 'password']
 
-    def create(self, validated_data):
+    def create(self, validated_data: Dict[str, Any]) -> UserType:
         """Create and return a new user with encrypted password."""
 
         user = User.objects.create_user(

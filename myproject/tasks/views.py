@@ -1,13 +1,19 @@
+from typing import Optional, Any
+
+from django.contrib.auth.models import AnonymousUser
+from django.db.models import QuerySet
 from drf_spectacular.utils import (
     extend_schema_view,
     extend_schema,
     OpenApiParameter,
 )
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
+from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
 from rest_framework.viewsets import ModelViewSet
 
 from .serializers import TaskSerializer
@@ -15,14 +21,14 @@ from .models import Task
 from .permissions import IsOwner, IsStaff
 
 
-class TasksListApiView(ListAPIView):
+class TasksListApiView(ListAPIView[Task]):
     """Retrieve a list of all users' tasks."""
 
     serializer_class = TaskSerializer
     permission_classes = [IsStaff]
     filterset_fields = ['status']
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Task]:
         return Task.objects.select_related('user').order_by('-pk')
 
 
@@ -31,7 +37,7 @@ class TasksListApiView(ListAPIView):
         OpenApiParameter(name='id', type=int, location=OpenApiParameter.PATH)
     ])
 )
-class TasksApiViewSet(ModelViewSet):
+class TasksApiViewSet(ModelViewSet[Task]):
     """
     ModelViewSet managing tasks of the authenticated user..
 
@@ -43,10 +49,12 @@ class TasksApiViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwner]
     filterset_fields = ['status']
 
-    def get_queryset(self):
-        if getattr(self, 'swagger_fake_view', False):
+    def get_queryset(self) -> QuerySet[Task]:
+        user = self.request.user
+        if getattr(self, 'swagger_fake_view', False) \
+                or isinstance(user, AnonymousUser):
             return Task.objects.none()  # safe fake queryset
-        return Task.objects.filter(user=self.request.user) \
+        return Task.objects.filter(user=user) \
             .select_related('user').order_by('-pk')
 
     @extend_schema(
@@ -60,16 +68,18 @@ class TasksApiViewSet(ModelViewSet):
             ),
         ]
     )
-    def list(self, request, *args, **kwargs):
+    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         return super().list(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: BaseSerializer[Task]) -> None:
         serializer.save(user=self.request.user)
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer: BaseSerializer[Task]) -> None:
         serializer.save()
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(
+        self, request: Request, *args: Any, **kwargs: Any,
+    ) -> Response:
         instance = self.get_object()
         if instance.user != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -77,7 +87,9 @@ class TasksApiViewSet(ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'])
-    def mark_completed(self, request, pk=None):
+    def mark_completed(
+        self, request: Request, pk: Optional[int] = None,
+    ) -> Response:
         """Mark the task as completed."""
 
         task = self.get_object()

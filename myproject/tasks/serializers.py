@@ -8,7 +8,7 @@ from users.serializers import UserSerializer
 User = get_user_model()
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class TaskSerializer(serializers.ModelSerializer[Task]):
     """Сериализатор данных сущности задачи."""
 
     user = UserSerializer(read_only=True)
