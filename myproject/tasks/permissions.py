@@ -8,6 +8,7 @@ class IsOwner(permissions.BasePermission):
         return request.user.is_superuser or request.user.is_staff \
             or obj.user == request.user
 
+
 class IsStaff(permissions.BasePermission):
     """Permission class that grants access to the staff."""
 

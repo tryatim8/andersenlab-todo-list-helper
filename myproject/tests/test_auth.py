@@ -1,6 +1,7 @@
 import pytest
 from rest_framework import status
 
+
 @pytest.mark.django_db
 def test_successful_login_returns_tokens(api_client, user_credentials):
     """Login returns access and refresh tokens."""
@@ -30,7 +31,10 @@ def test_access_fail_without_token(api_client):
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('client_name', ['auth_client', 'auth_client_refreshed'])
+@pytest.mark.parametrize(
+    'client_name',
+    ['auth_client', 'auth_client_refreshed'],
+)
 def test_access_successful_with_token(request, client_name):
     """Access granted with valid authentication token."""
     response = request.getfixturevalue(client_name).get('/api/tasks/')

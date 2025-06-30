@@ -1,4 +1,8 @@
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
+from drf_spectacular.utils import (
+    extend_schema_view,
+    extend_schema,
+    OpenApiParameter,
+)
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -29,7 +33,7 @@ class TasksListApiView(ListAPIView):
 )
 class TasksApiViewSet(ModelViewSet):
     """
-    A ModelViewSet for managing task objects belonging to the authenticated user.
+    ModelViewSet managing tasks of the authenticated user..
 
     Provides actions to list, retrieve, create, update, delete tasks,
     and mark them as completed. Access is restricted to the task owner.

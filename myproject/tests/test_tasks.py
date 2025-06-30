@@ -18,11 +18,13 @@ def test_tasks_list_failed(api_client, tasks_serialized, user):
 @pytest.mark.django_db
 @pytest.mark.parametrize('page_num', [1, 2])
 def test_tasks_list_successful_with_pagination(
-        auth_client, tasks_serialized, page_size, page_num,
-    ):
+    auth_client, tasks_serialized, page_size, page_num,
+):
     response = auth_client.get('/api/tasks/', query_params={'page': page_num})
     assert response.status_code == status.HTTP_200_OK
-    assert list(response.data.keys()) == ['count', 'next', 'previous', 'results']
+    assert list(response.data.keys()) == [
+        'count', 'next', 'previous', 'results',
+    ]
     assert response.data['count'] == len(tasks_serialized)
     start = (page_num - 1) * page_size
     assert response.data['results'] == tasks_serialized[start:start+page_size]
@@ -31,10 +33,13 @@ def test_tasks_list_successful_with_pagination(
 @pytest.mark.django_db
 @pytest.mark.parametrize('task_status', ['new', 'in_progress', 'completed'])
 def test_tasks_list_with_status_filter(
-        auth_client, tasks_serialized, page_size, task_status,
-    ):
+    auth_client, tasks_serialized, page_size, task_status,
+):
     """Filter tasks list by status."""
-    response = auth_client.get('/api/tasks/', query_params={'status': task_status})
+    response = auth_client.get(
+        '/api/tasks/',
+        query_params={'status': task_status},
+    )
     assert response.status_code == status.HTTP_200_OK
     expected_tasks = [t for t in tasks_serialized if t['status'] == task_status]
     assert response.data['count'] == len(expected_tasks)
@@ -94,8 +99,13 @@ def test_task_full_change_by_id_successful(auth_client, tasks_serialized):
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(('title', 'new_status'), [('one', 'in_progress'), ('two', 'completed')])
-def test_task_change_partly_by_id_successful(auth_client, tasks_serialized, title, new_status):
+@pytest.mark.parametrize(
+    ('title', 'new_status'),
+    [('one', 'in_progress'), ('two', 'completed')],
+)
+def test_task_change_partly_by_id_successful(
+    auth_client, tasks_serialized, title, new_status,
+):
     """Partial update of a task by ID."""
     response_data = {'title': title, 'status': new_status}
     task_to_change = random.choice(tasks_serialized)
@@ -140,7 +150,9 @@ def test_task_mark_completed_by_id_successful(auth_client, tasks_serialized):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('task_pk', [0, -123, 10 ** 10])
-def test_task_mark_completed_by_id_failed(auth_client, tasks_serialized, task_pk):
+def test_task_mark_completed_by_id_failed(
+    auth_client, tasks_serialized, task_pk,
+):
     response = auth_client.post(f'/api/tasks/{task_pk}/mark_completed/')
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.data['detail'] == 'No Task matches the given query.'
@@ -149,11 +161,15 @@ def test_task_mark_completed_by_id_failed(auth_client, tasks_serialized, task_pk
 @pytest.mark.django_db
 @pytest.mark.parametrize('page_num', [1, 2])
 def test_all_tasks_list_with_pagination_via_superuser_client_successful(
-        superuser_client, tasks_serialized, page_size, page_num
-    ):
-    response = superuser_client.get('/api/tasks/all/', query_params={'page': page_num})
+    superuser_client, tasks_serialized, page_size, page_num,
+):
+    response = superuser_client.get(
+        '/api/tasks/all/', query_params={'page': page_num},
+    )
     assert response.status_code == status.HTTP_200_OK
-    assert list(response.data.keys()) == ['count', 'next', 'previous', 'results']
+    assert list(response.data.keys()) == [
+        'count', 'next', 'previous', 'results',
+    ]
     assert response.data['count'] == len(tasks_serialized)
     start = (page_num - 1) * page_size
     assert response.data['results'] == tasks_serialized[start:start + page_size]
@@ -165,4 +181,5 @@ def test_all_tasks_list_from_user_client_failed(auth_client, tasks_serialized):
     response = auth_client.get('/api/tasks/all/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert 'detail' in response.data
-    assert response.data['detail'] == 'You do not have permission to perform this action.'
+    assert response.data['detail'] == ('You do not have permission to perform '
+                                       'this action.')

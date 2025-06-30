@@ -56,13 +56,18 @@ def auth_client(api_client, access_token, user):
 @pytest.fixture
 def access_token_refreshed(api_client, refresh_token, user):
     """Returns refreshed access token."""
-    response = api_client.post('/api/token/refresh/', data={'refresh': refresh_token})
+    response = api_client.post(
+        '/api/token/refresh/',
+        data={'refresh': refresh_token},
+    )
     return response.data['access']
 
 
 @pytest.fixture
 def auth_client_refreshed(api_client, access_token_refreshed, user):
-    api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token_refreshed}')
+    api_client.credentials(
+        HTTP_AUTHORIZATION=f'Bearer {access_token_refreshed}',
+    )
     return api_client
 
 
