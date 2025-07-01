@@ -10,6 +10,10 @@ echo "База доступна, запускаем миграции..."
 
 python manage.py migrate
 
+echo "Собираем статические файлы..."
+
+python manage.py collectstatic --noinput
+
 echo "Загружаем фикстуры..."
 
 python manage.py loaddata fixtures/*.json
