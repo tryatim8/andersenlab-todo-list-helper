@@ -1,12 +1,11 @@
-from django.db import models
 from django.contrib.auth import get_user_model
-
+from django.db import models
 
 User = get_user_model()
 
 
 class Task(models.Model):
-    """Модель задачи."""
+    """Task model for the database."""
 
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='tasks',
@@ -23,5 +22,5 @@ class Task(models.Model):
         ],
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Task `{self.title}` is {self.status}'

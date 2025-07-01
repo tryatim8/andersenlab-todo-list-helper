@@ -1,0 +1,98 @@
+[
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$E21dHYv3ZAJEyWU4zOttSh$L2RRgsvO5C8/4tQQhg2OUwhOYWLXhPyY/N8W5lJJRYc=",
+      "last_login": "2025-06-30T17:59:32.418Z",
+      "is_superuser": true,
+      "username": "admin",
+      "last_name": "",
+      "email": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-06-27T11:52:31.682Z",
+      "first_name": "",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$G7nX3c1t8ubLEqikMgtJjB$lXO7uo7QfUt3jKlR49Dxqbd7z8s23sR862OO3FUakTU=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "example_user",
+      "last_name": "",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2025-06-27T15:49:01.741Z",
+      "first_name": "",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "tasks.task",
+    "pk": 1,
+    "fields": {
+      "user": 2,
+      "title": "task one",
+      "description": "fsdgfhgjkfjlhkjfdsfagsdhk,jb",
+      "status": "new"
+    }
+  },
+  {
+    "model": "tasks.task",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "title": "task two",
+      "description": "fgfhsgjdhkg.hk,gfngdasghj",
+      "status": "in_progress"
+    }
+  },
+  {
+    "model": "tasks.task",
+    "pk": 3,
+    "fields": {
+      "user": 2,
+      "title": "task three",
+      "description": "safdagsfhdgkjfdsADGHJ,.BHJG",
+      "status": "completed"
+    }
+  },
+  {
+    "model": "tasks.task",
+    "pk": 4,
+    "fields": {
+      "user": 1,
+      "title": "task one",
+      "description": "fsgsavfqiuwetnygvwjfkew",
+      "status": "completed"
+    }
+  },
+  {
+    "model": "tasks.task",
+    "pk": 6,
+    "fields": {
+      "user": 1,
+      "title": "title six",
+      "description": "fasdgdfhkj,mnjbvcfvdgbfshdn,lkmnjb",
+      "status": "completed"
+    }
+  },
+  {
+    "model": "tasks.task",
+    "pk": 7,
+    "fields": {
+      "user": 1,
+      "title": "changed (put) title",
+      "description": "changed (put) description for the task",
+      "status": "completed"
+    }
+  }
+]

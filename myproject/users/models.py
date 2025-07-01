@@ -3,4 +3,4 @@ from django.db import models
 
 
 class User(AbstractUser):
-    first_name = models.CharField(max_length=150) # null=False, blank=False
+    first_name = models.CharField(max_length=150)  # null=False, blank=False

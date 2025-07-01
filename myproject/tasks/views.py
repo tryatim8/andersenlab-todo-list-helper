@@ -1,45 +1,85 @@
-from django_filters.rest_framework import DjangoFilterBackend
+from typing import Any, Optional
+
+from django.contrib.auth.models import AnonymousUser
+from django.db.models import QuerySet
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    extend_schema,
+    extend_schema_view,
+)
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, action
-from rest_framework.response import Response
 from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
 from rest_framework.viewsets import ModelViewSet
-from .serializers import TaskSerializer
 
 from .models import Task
 from .permissions import IsOwner, IsStaff
+from .serializers import TaskSerializer
 
 
-class TasksListApiView(ListAPIView):
-    """Получение списка задач всех пользователей."""
+class TasksListApiView(ListAPIView[Task]):
+    """Retrieve a list of all users' tasks."""
 
     serializer_class = TaskSerializer
     permission_classes = [IsStaff]
+    filterset_fields = ['status']
 
-    def get_queryset(self):
-        return Task.objects.select_related('user').order_by('pk')
+    def get_queryset(self) -> QuerySet[Task]:
+        return Task.objects.select_related('user').order_by('-pk')
 
 
-class TasksApiViewSet(ModelViewSet):
+@extend_schema_view(
+    retrieve=extend_schema(parameters=[
+        OpenApiParameter(name='id', type=int, location=OpenApiParameter.PATH)
+    ])
+)
+class TasksApiViewSet(ModelViewSet[Task]):
+    """
+    ModelViewSet managing tasks of the authenticated user..
+
+    Provides actions to list, retrieve, create, update, delete tasks,
+    and mark them as completed. Access is restricted to the task owner.
+    """
 
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated, IsOwner]
-    filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status']
 
-    def get_queryset(self):
-        return Task.objects.filter(user=self.request.user) \
+    def get_queryset(self) -> QuerySet[Task]:
+        user = self.request.user
+        if getattr(self, 'swagger_fake_view', False) \
+                or isinstance(user, AnonymousUser):
+            return Task.objects.none()  # safe fake queryset
+        return Task.objects.filter(user=user) \
             .select_related('user').order_by('-pk')
 
-    def perform_create(self, serializer):
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='status',
+                description='- `new` - New task\n'
+                            '- `in_progress` - In progress\n'
+                            '- `completed` - Completed',
+                enum=['new', 'in_progress', 'completed'],
+            ),
+        ]
+    )
+    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        return super().list(request, *args, **kwargs)
+
+    def perform_create(self, serializer: BaseSerializer[Task]) -> None:
         serializer.save(user=self.request.user)
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer: BaseSerializer[Task]) -> None:
         serializer.save()
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(
+        self, request: Request, *args: Any, **kwargs: Any,
+    ) -> Response:
         instance = self.get_object()
         if instance.user != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -47,8 +87,10 @@ class TasksApiViewSet(ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'])
-    def mark_completed(self, request, pk=None):
-        """Отметить задачу как выполненную."""
+    def mark_completed(
+        self, request: Request, pk: Optional[int] = None,
+    ) -> Response:
+        """Mark the task as completed."""
 
         task = self.get_object()
         if task.user != request.user:
