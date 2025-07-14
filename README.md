@@ -75,6 +75,12 @@ docker compose up --build
 
 Authentication is handled via **JWT tokens**.
 
+### Register a new user (authentication is not required)
+
+```http
+POST /api/users/register/
+```
+
 ### Login (obtain token pair)
 
 ```http

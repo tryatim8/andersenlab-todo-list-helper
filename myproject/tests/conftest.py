@@ -35,6 +35,16 @@ def user_credentials(user: UserType) -> Dict[str, str]:
 
 
 @pytest.fixture
+def new_user_credentials(user: UserType) -> Dict[str, str]:
+    return {
+        'username': fake.user_name(),
+        'first_name': fake.first_name(),
+        'last_name': fake.last_name(),
+        'password': fake.password(length=8, special_chars=False),
+    }
+
+
+@pytest.fixture
 def access_token(
     api_client: APIClient, user_credentials: Dict[str, str], user: UserType,
 ) -> str:
