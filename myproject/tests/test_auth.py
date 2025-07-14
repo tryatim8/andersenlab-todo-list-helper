@@ -5,9 +5,7 @@ from _pytest.fixtures import SubRequest
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
-
 from users.serializers import UserSerializer
-
 
 User = get_user_model()
 
@@ -55,18 +53,29 @@ def test_access_successful_with_token(
     assert response.status_code == status.HTTP_200_OK
     assert 'results' in response.data
 
+
 @pytest.mark.django_db
-def test_register_user_successful(api_client: APIClient, new_user_credentials) -> None:
-    response = api_client.post('/api/users/register/', data=new_user_credentials)
+def test_register_user_successful(
+   api_client: APIClient, new_user_credentials: Dict[str, str]
+) -> None:
+    response = api_client.post(
+        '/api/users/register/',
+        data=new_user_credentials,
+    )
     assert response.status_code == status.HTTP_201_CREATED
     new_user = User.objects.get(username=new_user_credentials['username'])
     assert response.data == UserSerializer(instance=new_user).data
 
 
 @pytest.mark.django_db
-def test_register_user_failed_no_password(api_client: APIClient, new_user_credentials) -> None:
+def test_register_user_failed_no_password(
+    api_client: APIClient, new_user_credentials: Dict[str, str]
+) -> None:
     new_user_credentials.pop('password')
     assert 'password' not in new_user_credentials, 'The password exists'
-    response = api_client.post('/api/users/register/', data=new_user_credentials)
+    response = api_client.post(
+        '/api/users/register/',
+        data=new_user_credentials,
+    )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert 'This field is required.' in response.data['password']
